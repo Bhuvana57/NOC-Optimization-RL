@@ -1,0 +1,31 @@
+test_convergence.py (Tests the convergence of the Q-learning algorithm):
+import numpy as np
+from code import Q_learning_algorithm_function
+
+def test_convergence():
+    # Initialize Q-table, parameters, and NOC environment
+    Q = np.zeros((num_states, num_actions))
+    gamma = 0.9
+    alpha = 0.1
+    epsilon = 0.1
+    num_episodes = 1000
+    # Run Q-learning algorithm
+    Q_learning_algorithm_function(Q, gamma, alpha, epsilon, num_episodes)
+    # Assert that Q-values have converged to optimal values
+    assert np.allclose(Q, optimal_Q_values), "Q-values have not converged"
+
+if __name__ == "__main__":
+    test_convergence()
+
+
+test_reward_function.py (Tests the reward calculation):
+from code import reward_function
+
+def test_reward_function():
+    # Test reward function for different latency and bandwidth values
+    assert reward_function(5, 0.9) == 0, "Incorrect reward for acceptable latency and bandwidth"
+    assert reward_function(15, 0.85) == -1, "Incorrect reward for high latency"
+    assert reward_function(10, 0.95) == -1, "Incorrect reward for low bandwidth"
+
+if __name__ == "__main__":
+    test_reward_function()
