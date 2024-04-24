@@ -1,0 +1,64 @@
+import numpy as np
+
+# Define NOC parameters
+num_states = 100  # Number of states representing different NOC configurations
+num_actions = 4  # Number of actions representing different changes to the NOC configuration
+Q = np.zeros((num_states, num_actions))  # Q-table
+gamma = 0.9  # Discount factor
+alpha = 0.1  # Learning rate
+epsilon = 0.1  # Exploration rate
+num_episodes = 1000  # Number of episodes
+
+# Simulated NOC environment
+def simulate_noc(state, action):
+    # Simulate latency and bandwidth for the given state and action
+    latency = np.random.randint(1, 20)  # Simulated latency
+    bandwidth = np.random.uniform(0.8, 1.0)  # Simulated bandwidth
+    return latency, bandwidth
+
+# Reward function
+def reward(latency, bandwidth):
+    # Calculate reward based on latency and bandwidth
+    latency_threshold = 10  # Threshold for acceptable latency
+    bandwidth_threshold = 0.95  # Threshold for desired bandwidth utilization
+    latency_reward = -1 if latency > latency_threshold else 0
+    bandwidth_reward = -1 if bandwidth < bandwidth_threshold else 0
+    return latency_reward + bandwidth_reward
+
+# State representation
+def state_representation(latency, bandwidth):
+    # Define a mapping from latency and bandwidth to state index
+    # For simplicity, you can discretize latency and bandwidth into bins
+    latency_bins = [1, 5, 10, 15, 20]
+    bandwidth_bins = [0.8, 0.85, 0.9, 0.95, 1.0]
+    latency_index = np.digitize(latency, latency_bins) - 1
+    bandwidth_index = np.digitize(bandwidth, bandwidth_bins) - 1
+    state_index = latency_index * len(bandwidth_bins) + bandwidth_index
+    return state_index
+
+# Q-learning algorithm
+for _ in range(num_episodes):
+    state = np.random.randint(num_states)  # Random initial state
+    while True:
+        # Epsilon-greedy action selection
+        if np.random.rand() < epsilon:
+            action = np.random.randint(num_actions)  # Explore
+        else:
+            action = np.argmax(Q[state])  # Exploit
+        # Simulate NOC with new configuration
+        latency, bandwidth = simulate_noc(state, action)
+        r = reward(latency, bandwidth)  # Get reward
+        next_state = state_representation(latency, bandwidth)  # Next state
+        # Update Q-value
+        Q[state, action] += alpha * (r + gamma * np.max(Q[next_state]) - Q[state, action])
+        state = next_state
+        if state == 0:
+            break  # Episode ends when back to initial state
+
+# Extract optimal policy (best actions for each state)
+optimal_policy = np.argmax(Q, axis=1)
+
+print("Final Q-values:")
+print(Q)
+print("\nOptimal Policy:")
+print(optimal_policy)
